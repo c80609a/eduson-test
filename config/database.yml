@@ -1,0 +1,18 @@
+default: &default
+  adapter: mysql2
+  encoding: utf8
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+  username: eduson
+  password: koi8rus
+
+development:
+  <<: *default
+  database: eduson_develop_db
+
+test:
+  <<: *default
+  database: eduson_test_db
+
+production:
+  <<: *default
+  database: eduson_db
