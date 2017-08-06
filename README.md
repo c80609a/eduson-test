@@ -399,40 +399,40 @@ Task.create!({title:'task4'})
 
 ```bash
 $ curl -X GET localhost:3000/users
-# получаем список всех пользователей:
+# --- получаем список всех пользователей:
 # [{"id":2,"email":"user@sochi.ru","role":"user","group":"sochi","created_at":"2017-08-06T03:38:24.000Z","updated_at":"2017-08-06T03:38:24.000Z"},
 # {"id":3,"email":"user@no_group.ru","role":"user","group":"no_group","created_at":"2017-08-06T03:38:50.000Z","updated_at":"2017-08-06T03:38:50.000Z"},
 # {"id":4,"email":"admin@spb.ru","role":"admin","group":"spb","created_at":"2017-08-06T03:39:25.000Z","updated_at":"2017-08-06T03:39:25.000Z"}]
 
 $ curl -X POST localhost:3000/assignments/to_users -d 'task_ids=1&user_ids=1'
-# назначаем одному пользователю одну задачу
+# --- назначаем одному пользователю одну задачу
 # в ответ приходит пустота - все корректно
 
 $ curl -X POST localhost:3000/assignments/to_users -d 'task_ids=1,2&user_ids=1,2'
-# назначаем многим пользователям много задач
+# --- назначаем многим пользователям много задач
 # в ответ приходит пустота - все корректно
 
 $ curl -X POST localhost:3000/assignments/to_users -d 'task_ids=1,2&user_ids=1,2,11'
-# назначаем многим пользователям много задач: среди user_ids есть несуществующий пользователь
+# --- назначаем многим пользователям много задач: среди user_ids есть несуществующий пользователь
 # {"message":"Couldn't find User with 'id'=11"}
 
 $ curl -X POST localhost:3000/assignments/to_groups -d 'task_ids=1,2&groups=sochi'
-# назначаем одной группе c одним пользователем 2 задачи
+# --- назначаем одной группе c одним пользователем 2 задачи
 #  SQL (0.6ms)  INSERT INTO `assignments` (`user_id`, `task_id`, ...) VALUES (2, 1, 0, ...)
 #  SQL (0.6ms)  INSERT INTO `assignments` (`user_id`, `task_id`, ...) VALUES (2, 2, 0, ...)
 # в ответ приходит пустота - все корректно
 
 $ curl -X POST localhost:3000/assignments/to_groups -d 'task_ids=1,2&groups=sochi'
-# назначаем одной группе (без пользователей) 2 задачи
+# --- назначаем одной группе (без пользователей) 2 задачи
 # в базу ничего не кладётся
 # в ответ приходит пустота - все корректно
 
 $ curl -X POST localhost:3000/assignments/to_groups -d 'task_ids=5&group=user'
-# назначаем группе задачи: среди task_ids есть несуществующая задача
-{"message":"Couldn't find Task with 'id'=5"}
+# --- назначаем группе задачи: среди task_ids есть несуществующая задача
+# {"message":"Couldn't find Task with 'id'=5"}
 
 $ curl -X GET localhost:3000/users/11
-# ищем инфо о несуществующем пользователе
+# --- ищем инфо о несуществующем пользователе
 # {"message":"Couldn't find User with 'id'=11"}
 
 $ curl -X GET localhost:3000/users/3
@@ -440,16 +440,16 @@ $ curl -X GET localhost:3000/users/3
 # {"id":3,"email":"user@no_group.ru","role":"user","group":"no_group","created_at":"2017-08-06T03:38:50.000Z","updated_at":"2017-08-06T03:38:50.000Z"}
 
 $ curl -X PUT localhost:3000/users/1/assignments/1 -d 'status=done'
-# обновляем статус назначенной задачи
+# --- обновляем статус назначенной задачи
 # SQL (0.1ms) UPDATE `assignments` SET `status` = 2  ...
 # в ответ приходит пустота - все корректно
 
 $ curl -X PUT localhost:3000/users/1/assignments/11 -d 'status=done'
-# пытаемся обновить статус несуществующего assignment-a
+# --- пытаемся обновить статус несуществующего assignment-a
 # {"message":"Couldn't find Assignment with [WHERE `assignments`.`user_id` = ? AND `assignments`.`id` = ?]"}
 
 $ curl -X DELETE localhost:3000/users/1/assignments/1
-# Удаляем у пользователя назначенную задачу
+# --- Удаляем у пользователя назначенную задачу
 # SQL (112.2ms)  DELETE FROM `assignments` WHERE `assignments`.`id` = 1
 # в ответ приходит пустота - все корректно
 ```
