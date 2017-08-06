@@ -3,7 +3,7 @@ class User < ApplicationRecord
   has_many :tasks, through: :assignments
 
   enum role: [:user, :admin]
-  enum group: [:moscow, :spb, :sochi, :no_group]
+  enum group: [:msk, :spb, :sochi, :no_group]
 
   after_initialize :set_default_role, if: :new_record?
   after_initialize :set_default_group, if: :new_record?
