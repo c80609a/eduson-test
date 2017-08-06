@@ -21,7 +21,8 @@
             <li><a href='#29-Проверяем-api'>2.9. Проверяем API.</a></li>
         </ul>
     </li>
-    <li><a href='#3-todo'>3. Todo</a>
+    <li><a href='#3-specs'>3. Specs</a>
+    <li><a href='#4-todo'>4. Todo</a>
 </ul>
 
 # 1. Subj
@@ -59,6 +60,8 @@
 ## 2.2. Создаём приложение
 
 * Для решения тестового задания предполагаем, что в проекте используется rails 5 и devise.
+* В качестве тестирующего фреймворка использую rspec
+* это RESTful JSON API Rails app 
 
 ```
 $ ruby -v # ruby 2.3.3
@@ -454,7 +457,42 @@ $ curl -X DELETE localhost:3000/users/1/assignments/1
 # в ответ приходит пустота - все корректно
 ```
 
-# 3. TODO
+# 3. Specs.
+
+Добавляю в `Gemfile` gem `rspec`:
+
+```ruby
+[...]
+group :development, :test do
+  gem 'rspec-rails', '~> 3.5'
+end
+
+group :test do
+  gem 'factory_girl_rails', '~> 4.0'
+  gem 'shoulda-matchers', '~> 3.1'
+  gem 'faker'
+  gem 'database_cleaner'
+end
+[...]
+```
+
+Настраиваю, создаю файлы под тесты:
+
+```
+$ bundle
+$ rails g rspec:install
+$ rails g rspec:controller application
+$ rails g rspec:controller items
+$ rails g rspec:controller assignments
+$ rails g rspec:model user
+$ rails g rspec:model task
+$ rails g rspec:model assignment
+$ rails g rspec:request user
+$ rails g rspec:request task
+$ rails g rspec:request assignment
+```
+
+# 4. TODO
 
 * [ ] Авторизовать запросы: 
     - [ ] список всех пользователей может получить только админ
@@ -477,9 +515,17 @@ $ curl -X DELETE localhost:3000/users/1/assignments/1
 * [ ] Пользователь не может изменить статус своих `assignment`-ов со статусом `approved`/`declined`   
 * [ ] Админ может изменить статус `assignment`-ов только на `approved`/`declined`
      
+* [ ] Причесать json-ответы (убрать ненужные атрибуты, добавить нужные)     
 * [ ] Покрыть код тестами:
-     - [ ]
-     - [ ]
-     - [ ]
-     - [ ]
-     - [ ]
+    - [ ] Контроллеры:
+        * [ ] `spec/controllers/application_controller_spec.rb`
+        * [ ] `spec/controllers/assignments_controller_spec.rb`
+        * [ ] `spec/controllers/users_controller_spec.rb`
+    - [ ] Модели:
+        * [ ] `spec/models/assignment_spec.rb`
+        * [ ] `spec/models/task_spec.rb`
+        * [ ] `spec/models/user_spec.rb`
+    - [ ] Запросы:
+        * [ ] `spec/requests/assignments_spec.rb`
+        * [ ] `spec/requests/tasks_spec.rb`
+        * [ ] `spec/requests/users_spec.rb`

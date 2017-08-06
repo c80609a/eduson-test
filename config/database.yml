@@ -9,9 +9,9 @@ development:
   <<: *default
   database: eduson_develop_db
 
-#test:
-#  <<: *default
-#  database: eduson_test_db
+test:
+  <<: *default
+  database: eduson_test_db
 
 production:
   <<: *default

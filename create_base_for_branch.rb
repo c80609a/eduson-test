@@ -2,7 +2,7 @@
 require 'mysql2'
 
 user_name = 'eduson'
-db_name = "#{user_name}_develop_db" 
+db_name = "#{user_name}_test_db"
 pass = 'koi8rus'
 
 puts '---[ CREATE DATABASE ]------------------ '
