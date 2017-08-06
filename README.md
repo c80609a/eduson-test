@@ -1,30 +1,30 @@
 # Summary
 
 <ul style='list-style:none !important;'>
-    <li><a href='#subj'>1. Subj.</a></li>
-    <li><a href='#flow'>2. Flow.</a>
+    <li><a href='#Subj'>1. Subj.</a></li>
+    <li><a href='#Flow'>2. Flow.</a>
         <ul>
-            <li><a href='#'>2.1. Описание сущностей.</a></li>
-            <li><a href='#'>2.2. Создаём приложение.</a></li>
-            <li><a href='#'>2.3. Создаём модели.</a>
+            <li><a href='#Описание-сущностей'>2.1. Описание сущностей.</a></li>
+            <li><a href='#Создаём-приложение'>2.2. Создаём приложение.</a></li>
+            <li><a href='#Создаём-модели'>2.3. Создаём модели.</a>
                 <ul>
-                   <li><a href='#'>2.3.1. Модель Task</a></li>                    
-                   <li><a href='#'>2.3.2. Модель User</a></li>                    
-                   <li><a href='#'>2.3.3. Модель Assignment</a></li>                    
+                   <li><a href='#Модель-Task'>2.3.1. Модель Task</a></li>                    
+                   <li><a href='#Модель-User'>2.3.2. Модель User</a></li>                    
+                   <li><a href='#Модель-Assignment'>2.3.3. Модель Assignment</a></li>                    
                 </ul>
             </li>
-            <li><a href='#'>2.4. Создаём контроллеры.</a></li>
-            <li><a href='#'>2.5. Улучшим контроллеры.</a></li>
-            <li><a href='#'>2.6. Добавляем service objects.</a></li>
-            <li><a href='#'>2.7. Описание маршрутов.</a></li>
-            <li><a href='#'>2.8. Проверяем модели.</a></li>
-            <li><a href='#'>2.9. Проверяем API.</a></li>
+            <li><a href='#Создаём-контроллеры'>2.4. Создаём контроллеры.</a></li>
+            <li><a href='#Улучшим-контроллеры'>2.5. Улучшим контроллеры.</a></li>
+            <li><a href='#Actions'>2.6. Добавляем service objects.</a></li>
+            <li><a href='#Описание-маршрутов'>2.7. Описание маршрутов.</a></li>
+            <li><a href='#Проверяем-модели'>2.8. Проверяем модели.</a></li>
+            <li><a href='#Проверяем-api'>2.9. Проверяем API.</a></li>
         </ul>
     </li>
     <li><a href='#todo'>3. Todo</a>
 </ul>
 
-# Subj
+# 1. Subj
 
 Сделать назначение программ обучения: 
 администратор назначает группе пользователей и/или 
@@ -36,12 +36,12 @@
 на Ваш взгляд, в этой задаче, чтобы остальные 
 члены команды могли доделать мелочи.
 
-# Flow
+# 2. Flow
 
 Процесс буду описывать последовательно, шаг за шагом.
 В конце приведён TODO, чтобы "...остальные члены команды могли доделать мелочи".
 
-## Описание сущностей
+## 2.1. Описание сущностей
 
 * **user**
 * **role**: роль пользователя: в рамках задачи добавил 2 роли: `:user` и `:admin`
@@ -56,7 +56,7 @@
     - `:approved` - админ проверил и подтвердил успешное выполнение задачи
     - `:declined` - админ проверил и отклонил решение
 
-## Создаём приложение
+## 2.2. Создаём приложение
 
 * Для решения тестового задания предполагаем, что в проекте используется rails 5 и devise.
 
@@ -71,7 +71,7 @@ $ rails generate devise:install
 $ bundle
 ```
 
-## Создаём модели
+## 2.3. Создаём модели
 
 ```
 $ rails g model Task title
@@ -79,7 +79,7 @@ $ rails g devise User role:integer group:integer
 $ rails g model Assignment user:references task:references status
 ```
 
-### Модель Task
+### 2.3.1. Модель Task
 
 * Связываем с моделью 'User':
 
@@ -89,7 +89,7 @@ class Task < ActiveRecord::Base
 end
 ```
 
-### Модель User
+### 2.3.2. Модель User
 
 * Перечисляем в ней роли, группы и назначаем дефолтные значения при создании.
 * Связываем с моделью 'Task': 
@@ -123,7 +123,7 @@ class User < ApplicationRecord
 end
 ```
 
-### Модель Assignment
+### 2.3.3. Модель Assignment
 
 * Связываем с моделями `User` и `Task`
 * перечисляем возможные статусы и назначаем дефолтный при создании
@@ -144,14 +144,14 @@ class Assignment < ActiveRecord::Base
 end
 ```
 
-## Создаём контроллеры
+## 2.4. Создаём контроллеры
 
 ```
 $ rails g controller assignments update destroy to_users to_groups
 $ rails g controller users index show
 ```
 
-```
+```ruby
 # app/controllers/users_controller.rb
 
 class UsersController < ApplicationController
@@ -178,7 +178,7 @@ end
 
 ```
 
-``` 
+```ruby
 # app/controllers/assignments_controller.rb
 
 class AssignmentsController < ApplicationController
@@ -224,11 +224,11 @@ class AssignmentsController < ApplicationController
 end
 ```
 
-## Улучшим контроллеры
+## 2.5. Улучшим контроллеры
 
 Добавим пару `concerns`, помогающих с json-ответами и с обработкой исключений:
 
-```
+```ruby
 # app/controllers/concerns/exception_handler.rb
 
 module ExceptionHandler
@@ -273,7 +273,7 @@ class ApplicationController < ActionController::API
 end
 ```
 
-## Actions
+## 2.6. Actions
 
 Директорая `actions` предназначена для *service objects*, 
 которые не использут сторонние сервисы:
@@ -281,7 +281,7 @@ end
 * [X] админ назначает *tasks* конкретному *пользователю* (по *user id*)
 * [X] админ назначает *tasks* конкретной *группе* пользователей (по *group id*)
 
-```
+```ruby
 # app/actions/assign_tasks_to_users.rb 
 
 class AssignTasksToUsers
@@ -313,7 +313,7 @@ class AssignTasksToUsers
 end
 ```
 
-```
+```ruby
 # app/actions/assign_tasks_to_groups.rb
 
 class AssignTasksToGroups
@@ -347,7 +347,7 @@ class AssignTasksToGroups
 end
 ```
 
-## Описание маршрутов
+## 2.7. Описание маршрутов
 
 ```ruby
 Rails.application.routes.draw do
@@ -360,7 +360,7 @@ Rails.application.routes.draw do
 end
 ```
 
-## Проверяем модели
+## 2.8. Проверяем модели
 
 ```bash
 $ rails c
@@ -395,7 +395,7 @@ Task.create!({title:'task4'})
 который исполняется командой `rake db:seed:fill_users_and_tasks`
 с помощью `lib/tasks/custom_seed.rake`.
 
-## Проверяем API
+## 2.9. Проверяем API
 
 ```bash
 $ curl -X GET localhost:3000/users
@@ -413,7 +413,7 @@ $ curl -X POST localhost:3000/assignments/to_users -d 'task_ids=1,2&user_ids=1,2
 # в ответ приходит пустота - все корректно
 
 $ curl -X POST localhost:3000/assignments/to_users -d 'task_ids=1,2&user_ids=1,2,11'
-# среди user_ids есть несуществующий пользователь
+# назначаем многим пользователям много задач: среди user_ids есть несуществующий пользователь
 # {"message":"Couldn't find User with 'id'=11"}
 
 $ curl -X POST localhost:3000/assignments/to_groups -d 'task_ids=1,2&groups=sochi'
@@ -428,18 +428,19 @@ $ curl -X POST localhost:3000/assignments/to_groups -d 'task_ids=1,2&groups=soch
 # в ответ приходит пустота - все корректно
 
 $ curl -X POST localhost:3000/assignments/to_groups -d 'task_ids=5&group=user'
-# среди task_ids есть несуществующая задача
+# назначаем группе задачи: среди task_ids есть несуществующая задача
 {"message":"Couldn't find Task with 'id'=5"}
 
 $ curl -X GET localhost:3000/users/11
 # ищем инфо о несуществующем пользователе
 # {"message":"Couldn't find User with 'id'=11"}
 
-curl -X GET localhost:3000/users/3
+$ curl -X GET localhost:3000/users/3
 # получаем инфо о существующем пользователе
 # {"id":3,"email":"user@no_group.ru","role":"user","group":"no_group","created_at":"2017-08-06T03:38:50.000Z","updated_at":"2017-08-06T03:38:50.000Z"}
 
 $ curl -X PUT localhost:3000/users/1/assignments/1 -d 'status=done'
+# обновляем статус назначенной задачи
 # SQL (0.1ms) UPDATE `assignments` SET `status` = 2  ...
 # в ответ приходит пустота - все корректно
 
@@ -448,11 +449,12 @@ $ curl -X PUT localhost:3000/users/1/assignments/11 -d 'status=done'
 # {"message":"Couldn't find Assignment with [WHERE `assignments`.`user_id` = ? AND `assignments`.`id` = ?]"}
 
 $ curl -X DELETE localhost:3000/users/1/assignments/1
+# Удаляем у пользователя назначенную задачу
 # SQL (112.2ms)  DELETE FROM `assignments` WHERE `assignments`.`id` = 1
 # в ответ приходит пустота - все корректно
 ```
 
-# TODO
+# 3. TODO
 
 * [ ] Авторизовать запросы: 
     - [ ] список всех пользователей может получить только админ
