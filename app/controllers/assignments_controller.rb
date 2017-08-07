@@ -22,7 +22,7 @@ class AssignmentsController < ApplicationController
     json_response({message: message}, :created)
   end
 
-  # POST tasks/to_groups -d 'task_ids=5&group_ids=1'
+  # POST tasks/to_groups -d 'task_ids=5&groups=spb,abz'
   def to_groups
     message = AssignTasksToGroups.new(params).perform
     json_response({message: message}, :created)
