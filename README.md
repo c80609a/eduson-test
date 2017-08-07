@@ -87,6 +87,8 @@ $ rails g model Assignment user:references task:references status
 * Связываем с моделью 'User':
 
 ```ruby
+# app/models/task.rb
+
 class Task < ActiveRecord::Base
     has_many :users, through: :assignments
 end
@@ -95,9 +97,11 @@ end
 ### 2.3.2. Модель User
 
 * Перечисляем в ней роли, группы и назначаем дефолтные значения при создании.
-* Связываем с моделью 'Task': 
+* Связываем с моделями `Task` и `Assignment`: 
 
 ```ruby
+# app/models/user.rb
+
 class User < ApplicationRecord
   has_many :assignments
   has_many :tasks, through: :assignments
@@ -132,6 +136,8 @@ end
 * перечисляем возможные статусы и назначаем дефолтный при создании
 
 ```ruby
+# app/models/assignment.rb
+
 class Assignment < ActiveRecord::Base
   belongs_to :user
   belongs_to :task
@@ -141,7 +147,7 @@ class Assignment < ActiveRecord::Base
   private
 
   def set_default_status
-    self.status ||= :fresh
+    self.status = :fresh
   end
 
 end
@@ -204,14 +210,14 @@ class AssignmentsController < ApplicationController
 
   # POST tasks/to_users -d 'task_ids=1,2,3&user_ids=1,2,3'
   def to_users
-    AssignTasksToUsers.new(params).perform
-    head :no_content
+    message = AssignTasksToUsers.new(params).perform
+    json_response({message: message}, :created)
   end
 
   # POST tasks/to_groups -d 'task_ids=5&group_ids=1'
   def to_groups
-    AssignTasksToGroups.new(params).perform
-    head :no_content
+    message = AssignTasksToGroups.new(params).perform
+    json_response({message: message}, :created)
   end
 
   private
@@ -287,6 +293,13 @@ end
 ```ruby
 # app/actions/assign_tasks_to_users.rb 
 
+# Назначить *tasks* конкретным *пользователям*.
+#
+# Принимает params вида 'task_ids=1,2,3&user_ids=1,2,3'.
+#
+# если среди task_ids/user_ids присутствует id несуществующей записи -
+# в базу не будет ничего записано.
+
 class AssignTasksToUsers
 
   def initialize(params)
@@ -311,6 +324,7 @@ class AssignTasksToUsers
 
     # если дошли до сюда - значит с данными всё впорядке, помещаем их в базу
     Assignment.create!(new_assignments)
+    'Задачи назначены указаным пользователям'
   end
 
 end
@@ -319,6 +333,17 @@ end
 ```ruby
 # app/actions/assign_tasks_to_groups.rb
 
+# Назначить *tasks* конкретным *группам*.
+#
+# Принимает params вида 'task_ids=1,2,3&groups=msk,spb'.
+#
+# Если среди task_ids присутствует id несуществующей записи -
+# в базу не будет ничего записано.
+#
+# Если среди groups присутствуют несуществующие группы - 
+# perform вернёт warnings сообщения, а задачи назначены будут
+# пользователям из существующих групп.
+
 class AssignTasksToGroups
 
   def initialize(params)
@@ -326,12 +351,24 @@ class AssignTasksToGroups
   end
 
   def perform
+
     # соберём параметры для создания Assignments
     new_assignments = []
+    #
+    warnings = []
 
     # обработаем входящие параметры
     @params[:groups].split(',').each do |group|
-      users = User.where(group: group)
+      users = User.try(group)
+
+      if users.nil?
+        warnings << "Группы #{group} не существует"
+        next
+      elsif users.size.zero?
+        warnings << "В группе #{group} нет пользователей"
+        next
+      end
+
       @params[:task_ids].split(',').each do |task_id|
         task = Task.find(task_id.to_i)
         users.each do |user|
@@ -343,8 +380,15 @@ class AssignTasksToGroups
       end
     end
 
-    # если дошли до сюда - значит с данными всё впорядке, помещаем их в базу
-    Assignment.create!(new_assignments)
+    if new_assignments.size.zero? && warnings.size > 0
+      raise ArgumentError.new('В указанных группах нет пользователей.')
+    else
+      # если дошли до сюда - значит с данными всё впорядке, помещаем их в базу
+      Assignment.create!(new_assignments)
+      warnings << 'Задачи назначены указаным пользователям'
+    end
+
+    warnings.join(',')
   end
 
 end
@@ -459,6 +503,9 @@ $ curl -X DELETE localhost:3000/users/1/assignments/1
 
 # 3. Specs.
 
+Этот пункт не входит в те 1-2 часа, отведённые под тестовое задание,
+добавлен для полноты картины.
+
 Добавляю в `Gemfile` gem `rspec`:
 
 ```ruby
@@ -492,6 +539,12 @@ $ rails g rspec:request task
 $ rails g rspec:request assignment
 ```
 
+Добавляю `factories/`, `support/` и `support/helpers/`.
+
+Подключаю и настраиваю `zeus`.
+
+Пишу тесты для моделей и запросов к контроллеру `AssignmentController`.
+
 # 4. TODO
 
 * [ ] Авторизовать запросы: 
@@ -505,9 +558,13 @@ $ rails g rspec:request assignment
 присутствует `id` несуществующей записи - не пройдёт весь запрос, т.е.
 в базу не будет ничего записано
 
-* [X] `AssignmentsController#to_groups`: если среди `task_ids`/`group_ids` 
+* [X] `AssignmentsController#to_groups`: если среди `task_ids` 
 присутствует `id` несуществующей записи - не пройдёт весь запрос, т.е.
 в базу не будет ничего записано
+
+* [X] `AssignmentsController#to_groups`: если среди `groups` 
+присутствует несуществующая группа - задачи будут назначены пользователям
+из существующих групп и вернётся сообщение о том, какие группы не существуют.
     
 * [ ] Пользователь может изменить статус только своих `assignment`-ов     
 * [ ] Пользователь может изменить статус своего `fresh assignment`-а только на `in_progress`
@@ -515,7 +572,8 @@ $ rails g rspec:request assignment
 * [ ] Пользователь не может изменить статус своих `assignment`-ов со статусом `approved`/`declined`   
 * [ ] Админ может изменить статус `assignment`-ов только на `approved`/`declined`
      
-* [ ] Причесать json-ответы (убрать ненужные атрибуты, добавить нужные)     
+* [ ] Причесать json-ответы (убрать ненужные атрибуты, добавить нужные)
+     
 * [ ] Покрыть код тестами:
     - [ ] Контроллеры:
         * [ ] `spec/controllers/application_controller_spec.rb`
@@ -526,6 +584,6 @@ $ rails g rspec:request assignment
         * [ ] `spec/models/task_spec.rb`
         * [ ] `spec/models/user_spec.rb`
     - [ ] Запросы:
-        * [ ] `spec/requests/assignments_spec.rb`
-        * [ ] `spec/requests/tasks_spec.rb`
+        * [X] `spec/requests/assignments_spec.rb`
         * [ ] `spec/requests/users_spec.rb`
+    - [ ] Сервисы:
