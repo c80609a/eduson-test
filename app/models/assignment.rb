@@ -7,7 +7,7 @@ class Assignment < ActiveRecord::Base
   private
 
   def set_default_status
-    self.status ||= :fresh
+    self.status = :fresh
   end
 
 end

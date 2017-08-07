@@ -18,14 +18,14 @@ class AssignmentsController < ApplicationController
 
   # POST tasks/to_users -d 'task_ids=1,2,3&user_ids=1,2,3'
   def to_users
-    AssignTasksToUsers.new(params).perform
-    head :no_content
+    message = AssignTasksToUsers.new(params).perform
+    json_response({message: message}, :created)
   end
 
   # POST tasks/to_groups -d 'task_ids=5&group_ids=1'
   def to_groups
-    AssignTasksToGroups.new(params).perform
-    head :no_content
+    message = AssignTasksToGroups.new(params).perform
+    json_response({message: message}, :created)
   end
 
   private

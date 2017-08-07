@@ -29,6 +29,7 @@ class AssignTasksToUsers
 
     # если дошли до сюда - значит с данными всё впорядке, помещаем их в базу
     Assignment.create!(new_assignments)
+    'Задачи назначены указаным пользователям'
   end
 
 end
